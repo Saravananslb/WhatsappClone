@@ -35,11 +35,6 @@ export const signIn = (req, res) => {
       "This is my token"
     );
 
-    req.user = {
-      _id: user._id,
-      token: token,
-    };
-
     return res.json({
       _id: user._id,
       name: user.name,
@@ -66,7 +61,13 @@ export const signUp = (req, res) => {
     .digest("hex");
   console.log(hash);
 
-  const user = new User(req.body);
+  const user = new User({
+    name: req.body.name,
+    number: req.body.number,
+    profilePic: req.body.profilePic,
+    about: req.body.about,
+    encryptedPassword: hash,
+  });
 
   user.save().then((data) => {
     console.log("User saved");

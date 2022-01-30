@@ -11,7 +11,7 @@ import {
 
 const router = new Router();
 
-router.get("/:userId/user/:contactId", isAuthenticated, getUser);
+router.get("/getuser", isAuthenticated, getUser);
 
 router.put("/:userId/setuser", isAuthenticated, updateUser);
 

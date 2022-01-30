@@ -1,4 +1,5 @@
 import multer from "multer";
+import { Conversation } from "../model/conversation.js";
 
 import { User } from "../model/user.js";
 
@@ -22,18 +23,47 @@ export const getProfile = (req, res) => {
     if (err) {
       res.json({ error: "Cannot get User" });
     }
-    console.log("DARR", data);
+
     return res.json(data);
   });
 };
 
-export const getContact = (req, res) => {
+export const getContact = async (req, res) => {
   let { contact } = req.body;
+  let convIdList = [];
+  contact.map((cont) => {
+    convIdList = [...convIdList, `${req.user}${cont}`, `${cont}${req.user}`];
+  });
+
+  let conv = await Conversation.find({
+    _id: { $in: convIdList },
+  }).exec();
+
   User.find(
     { _id: { $in: contact } },
     { encryptedPassword: 0, contact: 0 }
   ).exec((err, data) => {
-    return res.json(data);
+    let contacts = [];
+
+    data.forEach((user) => {
+      let conversation = conv.find((value) => {
+        return (
+          value._id === `${user._id}${req.user}` ||
+          value._id === `${req.user}${user._id}`
+        );
+      });
+
+      let lastMessage = conversation?.message.length
+        ? conversation.message[conversation.message.length - 1]
+        : { value: "" };
+
+      contacts = [
+        ...contacts,
+        { ...JSON.parse(JSON.stringify(user)), lastMessage: lastMessage.value },
+      ];
+    });
+
+    return res.json(contacts);
   });
 };
 
