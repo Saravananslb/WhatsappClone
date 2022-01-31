@@ -2,21 +2,27 @@ import express from "express";
 import mongoose from "mongoose";
 import { WebSocketServer } from "ws";
 import { setConversation } from "./controller/conversation.js";
+import cors from 'cors'
 
 import { Conversation } from "./model/conversation.js";
 import { User } from "./model/user.js";
 import { authRouter } from "./routes/auth.js";
 import { conversationRouter } from "./routes/conversation.js";
 import { userRouter } from "./routes/user.js";
+import { uploadRouter } from "./routes/upload.js";
+import bodyParser from 'body-parser'
 
 const app = express();
 
+app.use(cors())
 app.use(express.json());
+app.use(bodyParser.json({ limit: '50mb', extended: true, parameterLimit:50000 }));
 app.use(express.urlencoded());
 
 app.use(authRouter);
 app.use(conversationRouter);
 app.use(userRouter);
+app.use(uploadRouter);
 
 const server = app.listen(8000, () => {
   console.log("APP STARTED");

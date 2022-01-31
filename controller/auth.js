@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import base64_encode from '../util/readFile.js';
 
 import { User } from "../model/user.js";
 
@@ -39,7 +40,8 @@ export const signIn = (req, res) => {
       _id: user._id,
       name: user.name,
       number: user.number,
-      profilePic: user.profilePic,
+      profilePic: base64_encode(user.profilePic),
+      imageType: user.profilePic.split('.')[user.profilePic.split('.').length - 1],
       about: user.about,
       token: token,
     });

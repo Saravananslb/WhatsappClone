@@ -1,5 +1,6 @@
 import multer from "multer";
 import { Conversation } from "../model/conversation.js";
+import base64_encode  from '../util/readFile.js';
 
 import { User } from "../model/user.js";
 
@@ -8,7 +9,7 @@ const upload = multer({ dest: "uploads/" });
 export const getUser = (req, res) => {
   const { contactNumber } = req.query;
   console.log(contactNumber);
-  User.findOne({ number: contactNumber }).exec((err, data) => {
+  User.findOne({ number: contactNumber }).select('-encryptedPassword').exec((err, data) => {
     if (err) {
       res.json({ error: "Cannot get Contact" });
     }
@@ -23,13 +24,23 @@ export const getProfile = (req, res) => {
     if (err) {
       res.json({ error: "Cannot get User" });
     }
-
-    return res.json(data);
+    console.log(data)
+    const user = {
+      _id: data._id,
+      name: data.name,
+      contact: data.contact,
+      number: data.number,
+      about: data.about,
+      profilePic: base64_encode(data.profilePic),
+      imageType: data.profilePic.split('.')[data.profilePic.split('.').length - 1]
+    }
+    return res.json(user);
   });
 };
 
 export const getContact = async (req, res) => {
   let { contact } = req.body;
+  console.log(contact)
   let convIdList = [];
   contact.map((cont) => {
     convIdList = [...convIdList, `${req.user}${cont}`, `${cont}${req.user}`];
@@ -56,10 +67,13 @@ export const getContact = async (req, res) => {
       let lastMessage = conversation?.message.length
         ? conversation.message[conversation.message.length - 1]
         : { value: "" };
-
+      const userInfo = JSON.parse(JSON.stringify(user));
       contacts = [
         ...contacts,
-        { ...JSON.parse(JSON.stringify(user)), lastMessage: lastMessage.value },
+        { ...userInfo, 
+          profilePic: base64_encode(userInfo.profilePic),
+          imageType: userInfo.profilePic.split('.')[userInfo.profilePic.split('.').length - 1], 
+          lastMessage: lastMessage.value },
       ];
     });
 
@@ -68,9 +82,7 @@ export const getContact = async (req, res) => {
 };
 
 export const updateUser = (req, res) => {
-  let { userId } = req.params;
-
-  User.findOneAndUpdate({ _id: userId }, req.body, (err, user) => {
+  User.findOneAndUpdate({ _id: req.user }, req.body, (err, user) => {
     if (err || !user) {
       return res.json({ error: "Cannot update user" });
     }

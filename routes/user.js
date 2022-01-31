@@ -13,12 +13,12 @@ const router = new Router();
 
 router.get("/getuser", isAuthenticated, getUser);
 
-router.put("/:userId/setuser", isAuthenticated, updateUser);
+router.put("/setuser", isAuthenticated, updateUser);
 
 router.post("/getcontact", isAuthenticated, getContact);
 
 router.get("/getprofile", isAuthenticated, getProfile);
 
-router.post("/upload", isAuthenticated, multerMiddleware, uploadImage);
+// router.post("/upload", isAuthenticated, multerMiddleware, uploadImage);
 
 export { router as userRouter };
