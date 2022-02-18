@@ -27,7 +27,7 @@ export const signIn = (req, res) => {
 
     if (user.encryptedPassword !== hash) {
       return res.json({
-        error: "Enter correct password",
+        error: "either phone or password is not correct or Invalid credentials",
       });
     }
 
