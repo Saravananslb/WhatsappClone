@@ -73,7 +73,8 @@ export const getContact = async (req, res) => {
         { ...userInfo, 
           profilePic: base64_encode(userInfo.profilePic),
           imageType: userInfo.profilePic.split('.')[userInfo.profilePic.split('.').length - 1], 
-          lastMessage: lastMessage.value },
+          lastMessage: lastMessage.value,
+          lastMessageAt: lastMessage.date},
       ];
     });
 
